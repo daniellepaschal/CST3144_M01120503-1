@@ -16,15 +16,15 @@ createApp({
         { _id: '9',  topic: 'Drama',    location: 'Phoenix',       price: 1300, space: 5, icon: 'fa-star' },
         { _id: '10', topic: 'Swimming', location: 'Flic en Flac',  price: 1600, space: 5, icon: 'fa-life-ring' }
       ],
-            sortBy: 'topic',
-            sortOrder: 'asc',
-                  sortOrder: 'asc',
-        cart: [],
-      showLessons: true
+      sortBy: 'topic',
+      sortOrder: 'asc',
+      cart: [],
+      showLessons: true            // NEW: true = lessons page, false = cart page
     };
   },
-    computed: {
-        sortedLessons() {
+
+  computed: {
+    sortedLessons() {
       const key = this.sortBy;
       const dir = this.sortOrder === 'asc' ? 1 : -1;
       return [...this.lessons].sort((a, b) => {
@@ -35,9 +35,27 @@ createApp({
         }
         return (va - vb) * dir;
       });
+    },
+
+    // NEW: one line per lesson in the cart, with how many spaces
+    cartLines() {
+      const lines = [];
+      this.lessons.forEach(lesson => {
+        const qty = this.cartCount(lesson._id);
+        if (qty > 0) {
+          lines.push({ lesson: lesson, qty: qty });
+        }
+      });
+      return lines;
+    },
+
+    // NEW: total price of everything in the cart
+    cartTotal() {
+      return this.cartLines.reduce((sum, line) => sum + line.qty * line.lesson.price, 0);
     }
   },
-    methods: {
+
+  methods: {
     cartCount(id) {
       return this.cart.filter(item => item === id).length;
     },
@@ -49,9 +67,21 @@ createApp({
         this.cart.push(lesson._id);
       }
     },
-        toggleCart() {
+
+    // NEW: remove ONE space of a lesson from the cart
+    removeFromCart(id) {
+      const index = this.cart.indexOf(id);
+      if (index !== -1) {
+        this.cart.splice(index, 1);
+      }
+      if (this.cart.length === 0) {
+        this.showLessons = true;   // nothing left, go back to lessons
+      }
+    },
+
+    // NEW: switch between the two pages
+    toggleCart() {
       this.showLessons = !this.showLessons;
     }
   }
-
 }).mount('#app');

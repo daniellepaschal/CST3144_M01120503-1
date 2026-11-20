@@ -66,8 +66,19 @@
     </section>
 
     <!-- ========== CART PAGE ========== -->
-    <section v-else>
+        <section v-else>
       <h2 class="h4 mb-3">Your cart</h2>
+
+      <ul class="list-group mb-4">
+        <li class="list-group-item" v-for="line in cartLines" :key="line.lesson._id">
+          <i :class="['fa', line.lesson.icon]" aria-hidden="true"></i>
+          <strong>{{ line.lesson.topic }}</strong> – {{ line.lesson.location }}
+          <div class="small text-muted">
+            {{ line.qty }} × Rs {{ line.lesson.price }} = Rs {{ line.qty * line.lesson.price }}
+          </div>
+        </li>
+      </ul>
+    </section>
 
       <ul class="list-group mb-4">
         <li class="list-group-item d-flex justify-content-between align-items-center"
