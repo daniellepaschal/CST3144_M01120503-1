@@ -19,7 +19,8 @@ createApp({
             sortBy: 'topic',
             sortOrder: 'asc',
                   sortOrder: 'asc',
-      cart: []
+        cart: [],
+      showLessons: true
     };
   },
     computed: {
@@ -47,6 +48,9 @@ createApp({
       if (this.remaining(lesson) > 0) {
         this.cart.push(lesson._id);
       }
+    },
+        toggleCart() {
+      this.showLessons = !this.showLessons;
     }
   }
 

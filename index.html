@@ -11,7 +11,8 @@
 </head>
 <body>
   <div id="app" class="container py-4">
-     <header class="d-flex justify-content-between align-items-center mb-4">
+
+    <header class="d-flex justify-content-between align-items-center mb-4">
       <h1 class="mb-0">{{ sitename }}</h1>
       <button class="btn btn-dark" @click="toggleCart" :disabled="showLessons && cart.length === 0">
         <i class="fa fa-shopping-cart" aria-hidden="true"></i>
@@ -19,47 +20,76 @@
       </button>
     </header>
 
-    <div class="row g-2 mb-4">
-      <div class="col-sm-6">
-        <label class="form-label" for="sortBy">Sort by</label>
-        <select id="sortBy" class="form-select" v-model="sortBy">
-          <option value="topic">Subject</option>
-          <option value="location">Location</option>
-          <option value="price">Price</option>
-          <option value="space">Spaces</option>
-        </select>
+    <!-- ========== LESSONS PAGE ========== -->
+    <section v-if="showLessons">
+      <div class="row g-2 mb-4">
+        <div class="col-sm-6">
+          <label class="form-label" for="sortBy">Sort by</label>
+          <select id="sortBy" class="form-select" v-model="sortBy">
+            <option value="topic">Subject</option>
+            <option value="location">Location</option>
+            <option value="price">Price</option>
+            <option value="space">Spaces</option>
+          </select>
+        </div>
+        <div class="col-sm-6">
+          <label class="form-label" for="sortOrder">Order</label>
+          <select id="sortOrder" class="form-select" v-model="sortOrder">
+            <option value="asc">Ascending</option>
+            <option value="desc">Descending</option>
+          </select>
+        </div>
       </div>
-      <div class="col-sm-6">
-        <label class="form-label" for="sortOrder">Order</label>
-        <select id="sortOrder" class="form-select" v-model="sortOrder">
-          <option value="asc">Ascending</option>
-          <option value="desc">Descending</option>
-        </select>
-      </div>
-    </div>
 
-    <div class="row g-3">
-      <div class="col-sm-6 col-lg-4" v-for="lesson in sortedLessons" :key="lesson._id">
-        <div class="card h-100">
-          <div class="card-body">
-            <h2 class="h5 card-title">
-              <i :class="['fa', lesson.icon]" aria-hidden="true"></i> {{ lesson.topic }}
-            </h2>
-            <p class="mb-1">Location: {{ lesson.location }}</p>
-            <p class="mb-1">Price: Rs {{ lesson.price }}</p>
-            <p class="mb-0" :class="{ 'text-danger': remaining(lesson) === 0 }">
-              <span v-if="remaining(lesson) > 0">{{ remaining(lesson) }} space(s) left</span>
-              <span v-else>Fully booked</span>
-            </p>
-          </div>
-          <div class="card-footer bg-transparent border-0 pb-3">
-            <button class="btn btn-primary w-100" @click="addToCart(lesson)" :disabled="remaining(lesson) <= 0">
-              Add to Cart
-            </button>
+      <div class="row g-3">
+        <div class="col-sm-6 col-lg-4" v-for="lesson in sortedLessons" :key="lesson._id">
+          <div class="card h-100">
+            <div class="card-body">
+              <h2 class="h5 card-title">
+                <i :class="['fa', lesson.icon]" aria-hidden="true"></i> {{ lesson.topic }}
+              </h2>
+              <p class="mb-1">Location: {{ lesson.location }}</p>
+              <p class="mb-1">Price: Rs {{ lesson.price }}</p>
+              <p class="mb-0" :class="{ 'text-danger': remaining(lesson) === 0 }">
+                <span v-if="remaining(lesson) > 0">{{ remaining(lesson) }} space(s) left</span>
+                <span v-else>Fully booked</span>
+              </p>
+            </div>
+            <div class="card-footer bg-transparent border-0 pb-3">
+              <button class="btn btn-primary w-100" @click="addToCart(lesson)" :disabled="remaining(lesson) <= 0">
+                Add to Cart
+              </button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </section>
+
+    <!-- ========== CART PAGE ========== -->
+    <section v-else>
+      <h2 class="h4 mb-3">Your cart</h2>
+
+      <ul class="list-group mb-4">
+        <li class="list-group-item d-flex justify-content-between align-items-center"
+            v-for="line in cartLines" :key="line.lesson._id">
+          <div>
+            <i :class="['fa', line.lesson.icon]" aria-hidden="true"></i>
+            <strong>{{ line.lesson.topic }}</strong> – {{ line.lesson.location }}
+            <div class="small text-muted">
+              {{ line.qty }} × Rs {{ line.lesson.price }} = Rs {{ line.qty * line.lesson.price }}
+            </div>
+          </div>
+          <button class="btn btn-outline-danger btn-sm" @click="removeFromCart(line.lesson._id)">
+            Remove one
+          </button>
+        </li>
+        <li class="list-group-item d-flex justify-content-between fw-bold">
+          <span>Total</span>
+          <span>Rs {{ cartTotal }}</span>
+        </li>
+      </ul>
+    </section>
+
   </div>
 
   <script src="app.js"></script>
