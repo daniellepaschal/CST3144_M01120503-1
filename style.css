@@ -1,0 +1,5 @@
+:root { --ink: #1d2a44; --bg: #eef4fa; --accent: #f2b134; }
+body { background: var(--bg); color: var(--ink); font-family: "Trebuchet MS", "Segoe UI", sans-serif; }
+h1 { font-family: Georgia, "Times New Roman", serif; font-weight: 700; margin-bottom: 1.5rem; }
+.card { border: 0; border-radius: .75rem; box-shadow: 0 2px 8px rgba(29, 42, 68, .12); }
+.card-title .fa { color: var(--accent); margin-right: .25rem; }
