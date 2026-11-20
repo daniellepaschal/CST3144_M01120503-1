@@ -11,8 +11,13 @@
 </head>
 <body>
   <div id="app" class="container py-4">
-    <h1>{{ sitename }}</h1>
-    <p>Items in cart: {{ cart.length }}</p>
+     <header class="d-flex justify-content-between align-items-center mb-4">
+      <h1 class="mb-0">{{ sitename }}</h1>
+      <button class="btn btn-dark" @click="toggleCart" :disabled="showLessons && cart.length === 0">
+        <i class="fa fa-shopping-cart" aria-hidden="true"></i>
+        {{ showLessons ? 'Cart' : 'Back to lessons' }} ({{ cart.length }})
+      </button>
+    </header>
 
     <div class="row g-2 mb-4">
       <div class="col-sm-6">

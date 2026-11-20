@@ -5,4 +5,4 @@ h1 { font-family: Georgia, "Times New Roman", serif; font-weight: 700; margin-bo
 .card-title .fa { color: var(--accent); margin-right: .25rem; }
 
 .btn-primary { background: var(--ink); border-color: var(--ink); }
-.btn-primary:hover:not(:disabled) { background: #2c3e66; border-color: #2c3e66; }
+.btn-primary:hover:not(:disabled) { background: #d333b1; border-color: #2c3e66; }
