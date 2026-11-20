@@ -82,14 +82,18 @@
         <div class="card-body">
           <h2 class="h5">Checkout</h2>
 
-          <div class="mb-3">
+                    <div class="mb-3">
             <label class="form-label" for="name">Name</label>
-            <input id="name" class="form-control" v-model="order.name" autocomplete="name">
+            <input id="name" class="form-control" v-model="order.name"
+                   :class="{ 'is-invalid': order.name && !validName }" autocomplete="name">
+            <div class="invalid-feedback">Letters and spaces only.</div>
           </div>
 
           <div class="mb-3">
             <label class="form-label" for="phone">Phone</label>
-            <input id="phone" class="form-control" v-model="order.phone" inputmode="numeric" autocomplete="tel">
+            <input id="phone" class="form-control" v-model="order.phone"
+                   :class="{ 'is-invalid': order.phone && !validPhone }" inputmode="numeric" autocomplete="tel">
+            <div class="invalid-feedback">Numbers only.</div>
           </div>
 
           <p class="small text-muted mb-0">
