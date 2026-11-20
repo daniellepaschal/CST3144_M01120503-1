@@ -52,6 +52,12 @@ createApp({
     },
     cartTotal() {
       return this.cartLines.reduce((sum, line) => sum + line.qty * line.lesson.price, 0);
+    },
+    validName() {
+      return /^[A-Za-z\s]+$/.test(this.order.name.trim());
+    },
+    validPhone() {
+      return /^[0-9]+$/.test(this.order.phone);
     }
   },
 

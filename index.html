@@ -20,7 +20,7 @@
       </button>
     </header>
 
-    <!-- ========== LESSONS PAGE ========== -->
+    <!-- LESSONS PAGE -->
     <section v-if="showLessons">
       <div class="row g-2 mb-4">
         <div class="col-sm-6">
@@ -65,43 +65,9 @@
       </div>
     </section>
 
-    <!-- ========== CART PAGE ========== -->
-        <section v-else>
+    <!-- CART PAGE -->
+    <section v-else>
       <h2 class="h4 mb-3">Your cart</h2>
-
-      <ul class="list-group mb-4">
-        <li class="list-group-item" v-for="line in cartLines" :key="line.lesson._id">
-          <i :class="['fa', line.lesson.icon]" aria-hidden="true"></i>
-          <strong>{{ line.lesson.topic }}</strong> – {{ line.lesson.location }}
-          <div class="small text-muted">
-            {{ line.qty }} × Rs {{ line.lesson.price }} = Rs {{ line.qty * line.lesson.price }}
-          </div>
-        </li>
-      </ul>
-            <div class="card checkout-card">
-        <div class="card-body">
-          <h2 class="h5">Checkout</h2>
-
-                    <div class="mb-3">
-            <label class="form-label" for="name">Name</label>
-            <input id="name" class="form-control" v-model="order.name"
-                   :class="{ 'is-invalid': order.name && !validName }" autocomplete="name">
-            <div class="invalid-feedback">Letters and spaces only.</div>
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label" for="phone">Phone</label>
-            <input id="phone" class="form-control" v-model="order.phone"
-                   :class="{ 'is-invalid': order.phone && !validPhone }" inputmode="numeric" autocomplete="tel">
-            <div class="invalid-feedback">Numbers only.</div>
-          </div>
-
-          <p class="small text-muted mb-0">
-            Preview: {{ order.name }} – {{ order.phone }}
-          </p>
-        </div>
-      </div>
-    </section>
 
       <ul class="list-group mb-4">
         <li class="list-group-item d-flex justify-content-between align-items-center"
@@ -122,6 +88,26 @@
           <span>Rs {{ cartTotal }}</span>
         </li>
       </ul>
+
+      <div class="card checkout-card">
+        <div class="card-body">
+          <h2 class="h5">Checkout</h2>
+
+          <div class="mb-3">
+            <label class="form-label" for="name">Name</label>
+            <input id="name" class="form-control" v-model="order.name"
+                   :class="{ 'is-invalid': order.name && !validName }" autocomplete="name">
+            <div class="invalid-feedback">Letters and spaces only.</div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" for="phone">Phone</label>
+            <input id="phone" class="form-control" v-model="order.phone"
+                   :class="{ 'is-invalid': order.phone && !validPhone }" inputmode="numeric" autocomplete="tel">
+            <div class="invalid-feedback">Numbers only.</div>
+          </div>
+        </div>
+      </div>
     </section>
 
   </div>
