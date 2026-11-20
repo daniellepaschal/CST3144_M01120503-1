@@ -15,7 +15,39 @@ createApp({
         { _id: '8',  topic: 'Chess',    location: 'Vacoas',        price: 800,  space: 5, icon: 'fa-trophy' },
         { _id: '9',  topic: 'Drama',    location: 'Phoenix',       price: 1300, space: 5, icon: 'fa-star' },
         { _id: '10', topic: 'Swimming', location: 'Flic en Flac',  price: 1600, space: 5, icon: 'fa-life-ring' }
-      ]
+      ],
+            sortBy: 'topic',
+            sortOrder: 'asc',
+                  sortOrder: 'asc',
+      cart: []
     };
+  },
+    computed: {
+        sortedLessons() {
+      const key = this.sortBy;
+      const dir = this.sortOrder === 'asc' ? 1 : -1;
+      return [...this.lessons].sort((a, b) => {
+        const va = key === 'space' ? this.remaining(a) : a[key];
+        const vb = key === 'space' ? this.remaining(b) : b[key];
+        if (typeof va === 'string') {
+          return va.localeCompare(vb) * dir;
+        }
+        return (va - vb) * dir;
+      });
+    }
+  },
+    methods: {
+    cartCount(id) {
+      return this.cart.filter(item => item === id).length;
+    },
+    remaining(lesson) {
+      return lesson.space - this.cartCount(lesson._id);
+    },
+    addToCart(lesson) {
+      if (this.remaining(lesson) > 0) {
+        this.cart.push(lesson._id);
+      }
+    }
   }
+
 }).mount('#app');

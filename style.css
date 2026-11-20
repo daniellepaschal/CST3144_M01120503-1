@@ -1,5 +1,8 @@
-:root { --ink: #1d2a44; --bg: #eef4fa; --accent: #f2b134; }
+:root { --ink: #281334; --bg: #eca0cc; --accent: #f2b134; }
 body { background: var(--bg); color: var(--ink); font-family: "Trebuchet MS", "Segoe UI", sans-serif; }
 h1 { font-family: Georgia, "Times New Roman", serif; font-weight: 700; margin-bottom: 1.5rem; }
 .card { border: 0; border-radius: .75rem; box-shadow: 0 2px 8px rgba(29, 42, 68, .12); }
 .card-title .fa { color: var(--accent); margin-right: .25rem; }
+
+.btn-primary { background: var(--ink); border-color: var(--ink); }
+.btn-primary:hover:not(:disabled) { background: #2c3e66; border-color: #2c3e66; }
