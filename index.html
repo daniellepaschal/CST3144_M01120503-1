@@ -78,6 +78,25 @@
           </div>
         </li>
       </ul>
+            <div class="card checkout-card">
+        <div class="card-body">
+          <h2 class="h5">Checkout</h2>
+
+          <div class="mb-3">
+            <label class="form-label" for="name">Name</label>
+            <input id="name" class="form-control" v-model="order.name" autocomplete="name">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" for="phone">Phone</label>
+            <input id="phone" class="form-control" v-model="order.phone" inputmode="numeric" autocomplete="tel">
+          </div>
+
+          <p class="small text-muted mb-0">
+            Preview: {{ order.name }} – {{ order.phone }}
+          </p>
+        </div>
+      </div>
     </section>
 
       <ul class="list-group mb-4">

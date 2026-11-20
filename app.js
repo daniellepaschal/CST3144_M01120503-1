@@ -19,7 +19,11 @@ createApp({
       sortBy: 'topic',
       sortOrder: 'asc',
       cart: [],
-      showLessons: true            // NEW: true = lessons page, false = cart page
+      showLessons: true,
+      order: {
+        name: '',
+        phone: ''
+      }
     };
   },
 
@@ -36,8 +40,6 @@ createApp({
         return (va - vb) * dir;
       });
     },
-
-    // NEW: one line per lesson in the cart, with how many spaces
     cartLines() {
       const lines = [];
       this.lessons.forEach(lesson => {
@@ -48,8 +50,6 @@ createApp({
       });
       return lines;
     },
-
-    // NEW: total price of everything in the cart
     cartTotal() {
       return this.cartLines.reduce((sum, line) => sum + line.qty * line.lesson.price, 0);
     }
@@ -67,21 +67,17 @@ createApp({
         this.cart.push(lesson._id);
       }
     },
-
-    // NEW: remove ONE space of a lesson from the cart
+    toggleCart() {
+      this.showLessons = !this.showLessons;
+    },
     removeFromCart(id) {
       const index = this.cart.indexOf(id);
       if (index !== -1) {
         this.cart.splice(index, 1);
       }
       if (this.cart.length === 0) {
-        this.showLessons = true;   // nothing left, go back to lessons
+        this.showLessons = true;
       }
-    },
-
-    // NEW: switch between the two pages
-    toggleCart() {
-      this.showLessons = !this.showLessons;
     }
   }
 }).mount('#app');
