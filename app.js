@@ -8,12 +8,15 @@ createApp({
     return {
       sitename: 'After School Club',
       lessons: [],
+      teachers: [],
       loading: true,
       submitting: false,
       error: '',
       searchText: '',
       searchIds: null,
       searchTimer: null,
+      teacherId: '',
+      teacherLessonIds: null,
       sortBy: 'topic',
       sortOrder: 'asc',
       cart: [],
@@ -28,6 +31,7 @@ createApp({
 
   created() {
     this.fetchLessons();
+    this.fetchTeachers();
   },
 
   watch: {
@@ -39,10 +43,10 @@ createApp({
 
   computed: {
     visibleLessons() {
-      if (this.searchIds === null) {
-        return this.lessons;
-      }
-      return this.lessons.filter(lesson => this.searchIds.includes(lesson._id));
+      return this.lessons.filter(lesson =>
+        (this.searchIds === null || this.searchIds.includes(lesson._id)) &&
+        (this.teacherLessonIds === null || this.teacherLessonIds.includes(lesson._id))
+      );
     },
     sortedLessons() {
       const key = this.sortBy;
@@ -93,6 +97,35 @@ createApp({
         this.error = 'Could not load lessons. Is the server running? (' + err.message + ')';
       } finally {
         this.loading = false;
+      }
+    },
+
+    async fetchTeachers() {
+      try {
+        const response = await fetch(API_BASE + '/teachers');
+        if (response.ok) {
+          this.teachers = await response.json();
+        }
+      } catch (err) {
+        console.log('Could not load teachers', err);
+      }
+    },
+
+    async onTeacherChange() {
+      if (!this.teacherId) {
+        this.teacherLessonIds = null;
+        return;
+      }
+      try {
+        const response = await fetch(API_BASE + '/teachers/' + this.teacherId + '/lessons');
+        if (!response.ok) {
+          throw new Error('HTTP ' + response.status);
+        }
+        const results = await response.json();
+        this.teacherLessonIds = results.map(lesson => lesson._id);
+        this.error = '';
+      } catch (err) {
+        this.error = 'Could not load teacher lessons (' + err.message + ')';
       }
     },
 
