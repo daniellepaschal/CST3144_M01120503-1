@@ -20,10 +20,18 @@
       </button>
     </header>
 
+    <div v-if="error" class="alert alert-danger">{{ error }}</div>
+    <p v-if="loading" class="text-muted">Loading lessons… the server may take a few seconds to wake up.</p>
+
     <!-- LESSONS PAGE -->
     <section v-if="showLessons">
       <div class="row g-2 mb-4">
-        <div class="col-sm-6">
+        <div class="col-md-6">
+          <label class="form-label" for="search">Search</label>
+          <input id="search" class="form-control" v-model="searchText"
+                 placeholder="Subject, location, price or spaces">
+        </div>
+        <div class="col-md-3">
           <label class="form-label" for="sortBy">Sort by</label>
           <select id="sortBy" class="form-select" v-model="sortBy">
             <option value="topic">Subject</option>
@@ -32,7 +40,7 @@
             <option value="space">Spaces</option>
           </select>
         </div>
-        <div class="col-sm-6">
+        <div class="col-md-3">
           <label class="form-label" for="sortOrder">Order</label>
           <select id="sortOrder" class="form-select" v-model="sortOrder">
             <option value="asc">Ascending</option>
@@ -41,9 +49,12 @@
         </div>
       </div>
 
+      <p v-if="!loading && sortedLessons.length === 0" class="text-muted">No lessons match your search.</p>
+
       <div class="row g-3">
         <div class="col-sm-6 col-lg-4" v-for="lesson in sortedLessons" :key="lesson._id">
           <div class="card h-100">
+            <img :src="imageUrl(lesson)" :alt="lesson.topic + ' lesson'" class="card-img-top">
             <div class="card-body">
               <h2 class="h5 card-title">
                 <i :class="['fa', lesson.icon]" aria-hidden="true"></i> {{ lesson.topic }}
@@ -69,7 +80,9 @@
     <section v-else>
       <h2 class="h4 mb-3">Your cart</h2>
 
-      <ul class="list-group mb-4">
+      <div v-if="orderMessage" class="alert alert-success">{{ orderMessage }}</div>
+
+      <ul class="list-group mb-4" v-if="cart.length">
         <li class="list-group-item d-flex justify-content-between align-items-center"
             v-for="line in cartLines" :key="line.lesson._id">
           <div>
@@ -89,7 +102,7 @@
         </li>
       </ul>
 
-      <div class="card checkout-card">
+      <div class="card checkout-card" v-if="cart.length">
         <div class="card-body">
           <h2 class="h5">Checkout</h2>
 
@@ -106,6 +119,10 @@
                    :class="{ 'is-invalid': order.phone && !validPhone }" inputmode="numeric" autocomplete="tel">
             <div class="invalid-feedback">Numbers only.</div>
           </div>
+
+          <button class="btn btn-success" @click="checkout" :disabled="!canCheckout">
+            {{ submitting ? 'Submitting…' : 'Checkout' }}
+          </button>
         </div>
       </div>
     </section>

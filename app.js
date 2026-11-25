@@ -1,21 +1,19 @@
+// Address of your back-end (change to your render.com URL when you deploy)
+const API_BASE = 'http://localhost:3000';
+
 const { createApp } = Vue;
 
 createApp({
   data() {
     return {
       sitename: 'After School Club',
-      lessons: [
-        { _id: '1',  topic: 'Math',     location: 'Ebene',         price: 1200, space: 5, icon: 'fa-calculator' },
-        { _id: '2',  topic: 'Music',    location: 'Curepipe',      price: 1500, space: 5, icon: 'fa-music' },
-        { _id: '3',  topic: 'Art',      location: 'Quatre Bornes', price: 1100, space: 5, icon: 'fa-paint-brush' },
-        { _id: '4',  topic: 'Football', location: 'Rose Hill',     price: 900,  space: 5, icon: 'fa-futbol-o' },
-        { _id: '5',  topic: 'Science',  location: 'Moka',          price: 1400, space: 5, icon: 'fa-flask' },
-        { _id: '6',  topic: 'English',  location: 'Port Louis',    price: 1000, space: 5, icon: 'fa-book' },
-        { _id: '7',  topic: 'Coding',   location: 'Ebene',         price: 1800, space: 5, icon: 'fa-code' },
-        { _id: '8',  topic: 'Chess',    location: 'Vacoas',        price: 800,  space: 5, icon: 'fa-trophy' },
-        { _id: '9',  topic: 'Drama',    location: 'Phoenix',       price: 1300, space: 5, icon: 'fa-star' },
-        { _id: '10', topic: 'Swimming', location: 'Flic en Flac',  price: 1600, space: 5, icon: 'fa-life-ring' }
-      ],
+      lessons: [],
+      loading: true,
+      submitting: false,
+      error: '',
+      searchText: '',
+      searchIds: null,
+      searchTimer: null,
       sortBy: 'topic',
       sortOrder: 'asc',
       cart: [],
@@ -23,15 +21,33 @@ createApp({
       order: {
         name: '',
         phone: ''
-      }
+      },
+      orderMessage: ''
     };
   },
 
+  created() {
+    this.fetchLessons();
+  },
+
+  watch: {
+    searchText() {
+      clearTimeout(this.searchTimer);
+      this.searchTimer = setTimeout(this.runSearch, 300);
+    }
+  },
+
   computed: {
+    visibleLessons() {
+      if (this.searchIds === null) {
+        return this.lessons;
+      }
+      return this.lessons.filter(lesson => this.searchIds.includes(lesson._id));
+    },
     sortedLessons() {
       const key = this.sortBy;
       const dir = this.sortOrder === 'asc' ? 1 : -1;
-      return [...this.lessons].sort((a, b) => {
+      return [...this.visibleLessons].sort((a, b) => {
         const va = key === 'space' ? this.remaining(a) : a[key];
         const vb = key === 'space' ? this.remaining(b) : b[key];
         if (typeof va === 'string') {
@@ -58,10 +74,50 @@ createApp({
     },
     validPhone() {
       return /^[0-9]+$/.test(this.order.phone);
+    },
+    canCheckout() {
+      return this.validName && this.validPhone && this.cart.length > 0 && !this.submitting;
     }
   },
 
   methods: {
+    async fetchLessons() {
+      try {
+        const response = await fetch(API_BASE + '/lessons');
+        if (!response.ok) {
+          throw new Error('HTTP ' + response.status);
+        }
+        this.lessons = await response.json();
+        this.error = '';
+      } catch (err) {
+        this.error = 'Could not load lessons. Is the server running? (' + err.message + ')';
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    async runSearch() {
+      const q = this.searchText.trim();
+      if (!q) {
+        this.searchIds = null;
+        return;
+      }
+      try {
+        const response = await fetch(API_BASE + '/search?q=' + encodeURIComponent(q));
+        if (!response.ok) {
+          throw new Error('HTTP ' + response.status);
+        }
+        const results = await response.json();
+        this.searchIds = results.map(lesson => lesson._id);
+        this.error = '';
+      } catch (err) {
+        this.error = 'Search failed (' + err.message + ')';
+      }
+    },
+
+    imageUrl(lesson) {
+      return API_BASE + '/' + lesson.image;
+    },
     cartCount(id) {
       return this.cart.filter(item => item === id).length;
     },
@@ -75,6 +131,9 @@ createApp({
     },
     toggleCart() {
       this.showLessons = !this.showLessons;
+      if (this.showLessons) {
+        this.orderMessage = '';
+      }
     },
     removeFromCart(id) {
       const index = this.cart.indexOf(id);
@@ -83,6 +142,51 @@ createApp({
       }
       if (this.cart.length === 0) {
         this.showLessons = true;
+      }
+    },
+    async checkout() {
+      if (!this.canCheckout) {
+        return;
+      }
+      this.submitting = true;
+      this.error = '';
+
+      try {
+        const lines = this.cartLines;
+
+        const orderResponse = await fetch(API_BASE + '/orders', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: this.order.name.trim(),
+            phone: this.order.phone,
+            items: lines.map(line => ({ lessonId: line.lesson._id, spaces: line.qty }))
+          })
+        });
+        if (!orderResponse.ok) {
+          throw new Error('Order failed: HTTP ' + orderResponse.status);
+        }
+
+        for (const line of lines) {
+          const newSpace = line.lesson.space - line.qty;
+          const putResponse = await fetch(API_BASE + '/lessons/' + line.lesson._id, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ space: newSpace })
+          });
+          if (!putResponse.ok) {
+            throw new Error('Update failed: HTTP ' + putResponse.status);
+          }
+          line.lesson.space = newSpace;
+        }
+
+        this.orderMessage = 'Thank you ' + this.order.name.trim() + '! Your order has been submitted.';
+        this.cart = [];
+        this.order = { name: '', phone: '' };
+      } catch (err) {
+        this.error = err.message;
+      } finally {
+        this.submitting = false;
       }
     }
   }
